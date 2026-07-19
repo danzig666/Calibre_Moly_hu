@@ -266,8 +266,16 @@ class Worker(Thread):  # Get details
                 '/div[contains(concat(" ", normalize-space(@class), " "), '
                 '" text ")][1]')
         if description_node:
-            parts = [self._clean_text(text)
-                     for text in description_node[0].itertext() if text.strip()]
+            spoiler_warning = 'Vigyázat! Cselekményleírást tartalmaz.'
+            parts = []
+            for text in description_node[0].itertext():
+                if not text.strip():
+                    continue
+                text = self._clean_text(text)
+                if text.startswith(spoiler_warning):
+                    text = text[len(spoiler_warning):].strip()
+                if text:
+                    parts.append(text)
             return '\n'.join(part for part in parts if part)
 
     def parse_publisher(self, root):
@@ -316,7 +324,7 @@ class Worker(Thread):  # Get details
             '" like_count ")]/text()')
         if rating_node:
             # Calibre stores ratings on a 0-10 scale (displayed as 0-5 stars).
-            return float(rating_node[0].strip('%').strip()) * 0.1
+            return round(float(rating_node[0].strip('%').strip()) * 0.1, 1)
 
     def parse_covers(self, root):
         from calibre_plugins.moly_hu import Moly_hu

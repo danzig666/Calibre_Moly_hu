@@ -3,6 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import unicodedata
+import re
 from calibre import browser
 from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.ebooks.metadata import check_isbn
@@ -12,7 +13,11 @@ import sys
 import time
 
 __license__ = 'GPL v3'
-__copyright__ = '2011-2018, Hoffer Csaba <csaba.hoffer@gmail.com>, Kloon <kloon@techgeek.co.in>, otapi <otapigems.com>, Dezso <orai.dezso@gmail.com>'
+__copyright__ = ('2011-2026, Daermond, '
+                 'Hoffer Csaba <csaba.hoffer@gmail.com>, '
+                 'Kloon <kloon@techgeek.co.in>, otapi <otapigems.com>, '
+                 'Dezso <orai.dezso@gmail.com>; '
+                 'Hokutya <mail@hokutya.com>, seeder and contributors')
 __docformat__ = 'restructuredtext hu'
 
 
@@ -28,9 +33,10 @@ else:
 class Moly_hu(Source):
     name = 'Moly_hu'
     description = _('Downloads metadata and covers from moly.hu')
-    author = 'Hoffer Csaba & Kloon & fatsadt & otapi & Dezso'
-    version = (1, 1, 0)
-    minimum_calibre_version = (0, 8, 0)
+    author = ('Daermond, Hoffer Csaba, Kloon, fatsadt, otapi, Dezso, '
+              'Hokutya & seeder')
+    version = (5, 1, 1)
+    minimum_calibre_version = (5, 0, 0)
 
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:isbn', 'identifier:moly_hu', 'tags',
@@ -51,6 +57,12 @@ class Moly_hu(Source):
     BASE_URL = 'https://moly.hu'
     BOOK_URL = BASE_URL + '/konyvek/'
     SEARCH_URL = BASE_URL + '/kereses?query='
+
+    def get_book_url(self, identifiers):
+        """Return a clickable Moly.hu URL for Calibre's identifier UI."""
+        moly_id = identifiers.get('moly_hu')
+        if moly_id:
+            return 'moly_hu', moly_id, self.BOOK_URL + moly_id
 
     def create_query(self, log, title=None, authors=None, identifiers={}):
         isbn = check_isbn(identifiers.get('isbn', None))
@@ -185,13 +197,18 @@ class Moly_hu(Source):
                     continue
                 author = author_n_titles[0].strip()
                 title = author_n_titles[1].strip()
-                log.info('Orig: %s, target: %s' % (
-                    self.normalize_for_match(orig_title),
-                    self.normalize_for_match(title)))
+                title_variants = self._search_result_title_variants(
+                    result, title)
+                log.info('Orig: %s, target variants: %s' % (
+                    self.normalize_for_match(orig_title), ', '.join(
+                        self.normalize_for_match(value)
+                        for value in title_variants)))
 
                 if orig_title:
-                    if (self.normalize_for_match(orig_title) not in
-                            self.normalize_for_match(title)):
+                    normalized_orig_title = self.normalize_for_match(orig_title)
+                    if not any(normalized_orig_title in
+                               self.normalize_for_match(value)
+                               for value in title_variants):
                         continue
                 if orig_authors:
                     author1 = orig_authors[0]
@@ -216,6 +233,27 @@ class Moly_hu(Source):
 
     def strip_accents(self, s):
         return self.normalize_for_match(s)
+
+    def _search_result_title_variants(self, result, title):
+        """Return book-title forms represented by a Moly search result.
+
+        Moly displays a series-prefixed Calibre title such as
+        ``Egy Zizi naplója: Popsztár`` as the book title ``Popsztár`` plus a
+        separate ``(Egy Zizi naplója 3.)`` series link.  Recombining those two
+        values keeps matching precise without accepting arbitrary short-title
+        results.
+        """
+        variants = [title]
+        series_nodes = result.xpath(
+            '../a[contains(@href, "/sorozatok/")]')
+        for series_node in series_nodes:
+            series = ''.join(series_node.itertext()).strip().strip('()')
+            series = re.sub(
+                r'\s+(?:\d+(?:[.,]\d+)?|[IVXLCDM]+)\.?$', '', series,
+                flags=re.IGNORECASE)
+            if series:
+                variants.append('%s %s' % (series, title))
+        return variants
 
     def normalize_for_match(self, value):
         if value is None:

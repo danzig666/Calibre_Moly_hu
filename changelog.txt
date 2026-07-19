@@ -1,50 +1,90 @@
-[B]Version 1.1.0[/B] - 19 Jul 2026
-Update the search URL for Moly's current query parameter.
+[B]Version 5.1.1[/B] - 19 Jul 2026
+Match Calibre titles prefixed with a series name when Moly.hu presents the
+series separately from the short book title.
+Add live metadata and cover regression coverage for Egy Zizi naplója: Popsztár.
+
+[B]Version 5.1.0[/B] - 19 Jul 2026
+Merge the legacy 1.0.9 and Hokutya 5.0.9 maintenance lines.
+Update the search URL and prioritize ISBN searches.
 Prevent redirected home pages from producing unrelated book matches.
 Parse HTML through lxml's tolerant UTF-8 byte parser.
-Update title, series, description, tag, edition, and cover selectors for the current site.
-Correct Calibre's rating scale and avoid inventing month/day publication dates.
+Update title, series, description, tag, edition, rating, and cover parsing.
+Add clickable Moly.hu book URLs and remove spoiler warnings from descriptions.
+Correct partial publication dates and Greek, Chinese, and Japanese language codes.
+Add automated parser tests and live metadata/cover integration checks.
+
+[B]Version 5.0.9[/B] - 07 Aug 2025
+Fix for Moly.hu changes to comments.
+
+[B]Version 5.0.8[/B] - 17 May 2025
+Fix for Moly.hu changes to series text.
+
+[B]Version 5.0.7[/B] - 19 Oct 2024
+Minor bug fixes. Thanks to seeder.
+
+[B]Version 5.0.6[/B] - 07 Jul 2024
+Minor bug fixes.
+
+[B]Version 5.0.5[/B] - 06 Jul 2024
+Fix for Moly.hu changes to tags.
+
+[B]Version 5.0.4[/B] - 03 Dec 2022
+Fix for Moly.hu changes to text.
+
+[B]Version 5.0.3[/B] - 28 Dec 2021
+Minor bug fixes.
+
+[B]Version 5.0.2[/B] - 28 Nov 2021
+ISBN search error fix.
+
+[B]Version 5.0.1[/B] - 04 Nov 2021
+Fix for Moly.hu changes to tag parsing.
+
+[B]Version 4.1.7[/B] - 26 Sep 2020
+Version number change for Calibre 5.
+
+[B]Versions 1.1.7-1.1.5[/B] - 25-26 Sep 2020
+Python 3 support for Calibre and minor bug fixes.
+
+[B]Version 1.1.4[/B] - 03 Jul 2020
+Fix ISBN searches.
+
+[B]Versions 1.1.3-1.1.2[/B] - 17-18 Jun 2020
+Minor fixes and changes to moly_hu identifier handling.
+
+[B]Versions 1.1.1-1.1.0[/B] - 17-18 Jun 2020
+Fix title and series parsing.
+Remove invisible title characters, excess line breaks, and spoiler warnings.
+Preserve italic text in comments.
 
 [B]Version 1.0.9[/B] - 22 Aug 2020
-Add support to pyton3.
-Fix site parsing issues.
-Fix random sourcecode formatting.
-Update by Dezso
+Python 3 support and site parsing fixes in the parallel maintenance line.
+Update by Dezso.
 
 [B]Version 1.0.8[/B] - 30 May 2018
-Search primarily by isbn. (It's the most specific and accurate data. Try out the Extract ISBN plugin. With that the search is almost flawles)
-If no match found fall back to broader search.
-If no match try to remove () parts from title, after that try to remove authors.
-Update by Dezso
+Search primarily by ISBN and retry progressively with title and author.
+Update by Dezso.
 
-[B]Version 1.0.7[/B] - 8 May 2018
-Find switched family-first names as well 
-Update by otapi
+[B]Version 1.0.7[/B] - 08 May 2018
+Find switched family-first names. Update by otapi.
 
-[B]Version 1.0.6[/B] - 11 April 2018
-The filter of relevant title and author by transliterate the extended Hungarian characters
-Update by otapi
+[B]Version 1.0.6[/B] - 11 Apr 2018
+Accent-independent title and author filtering. Update by otapi.
 
-[B]Version 1.0.5[/B] - 29 March 2018
-Search was too wide, now filters only to relevant title and author
-Update by otapi
+[B]Version 1.0.5[/B] - 29 Mar 2018
+Narrow overly broad searches to relevant titles and authors. Update by otapi.
 
 [B]Version 1.0.4[/B] - 25 Jan 2017
-Now working again, and searches for ISBNs
-Update by fatsadt
+Restore searching and add ISBN support. Update by fatsadt.
 
-[B]Version 1.0.3[/B] - 2 Jan 2014
-Can download multiple bigger cover images now
-Reworked the plugin configuration
+[B]Version 1.0.3[/B] - 02 Jan 2014
+Download multiple larger covers and rework configuration.
 
 [B]Version 1.0.2[/B] - 28 Jul 2013
-Patched plugin to work with the new layout of moly.hu
-Now parses language as well, so calibre will no longer capitalize Hungarian book titles
+Adapt to the Moly.hu layout and add language parsing.
 
-[B]Version 1.0.1[/B] - 9 Oct 2012
-Fix for Moly.hu changes to html code
-Parses ISBN, publisher, year of publication as well
-Raised max number of results to 12
+[B]Version 1.0.1[/B] - 09 Oct 2012
+Parse ISBN, publisher, and publication year.
 
 [B]Version 1.0[/B] - 08 May 2011
-Initial release of plugin
+Initial release by Daermond.

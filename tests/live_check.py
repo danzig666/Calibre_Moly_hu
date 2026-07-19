@@ -58,5 +58,35 @@ plugin.download_cover(
     authors=found[0].authors, identifiers=found[0].identifiers, timeout=30,
     get_best_cover=True)
 assert not cover_results.empty(), 'Live cover download returned no data'
+
+# Regression check for the page that triggered lxml's Unicode parser error.
+regression_results = Queue()
+plugin.identify(
+    ConsoleLog(), regression_results, threading.Event(),
+    title='Egy cs\u00fanya n\u0151', authors=['\u00c1kody Zsuzsa'],
+    identifiers={'moly_hu': 'akody-zsuzsa-egy-csunya-no'}, timeout=30)
+regression = regression_results.get_nowait()
+assert regression.title == 'Egy cs\u00fanya n\u0151', regression.title
+assert regression.get_identifier('moly_hu') == 'akody-zsuzsa-egy-csunya-no'
+
+# Moly separates this Calibre title into a short title and a series link.
+series_results = Queue()
+plugin.identify(
+    ConsoleLog(), series_results, threading.Event(),
+    title='Egy Zizi napl\u00f3ja: Popszt\u00e1r',
+    authors=['Rachel Renee Russell'], identifiers={}, timeout=30)
+series_book = series_results.get_nowait()
+assert series_book.title == 'Popszt\u00e1r', series_book.title
+assert series_book.series == 'Egy Zizi napl\u00f3ja', series_book.series
+assert series_book.series_index == 3, series_book.series_index
+series_covers = Queue()
+plugin.download_cover(
+    ConsoleLog(), series_covers, threading.Event(),
+    title='Egy Zizi napl\u00f3ja: Popszt\u00e1r',
+    authors=['Rachel Renee Russell'], identifiers={}, timeout=30,
+    get_best_cover=True)
+assert not series_covers.empty(), 'Series-prefixed title returned no cover'
 print('Live identify passed:', found[0])
 print('Live cover download passed')
+print('lxml regression page passed:', regression.title)
+print('Series-prefixed title and cover passed:', series_book.title)

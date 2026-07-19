@@ -3,6 +3,10 @@
 Ez a [Calibre](https://calibre-ebook.com/) bővítmény könyvek metaadatait és
 borítóképeit tölti le a [Moly.hu](https://moly.hu/) oldalról.
 
+A 5.1-es kiadási ág egyesíti a korábbi 1.0.9-es forrásvonalat Hokutya 5.0.9-ig
+karbantartott változatával, és hozzáadja a Moly.hu jelenlegi oldalához szükséges
+javításokat.
+
 ## Főbb funkciók
 
 - cím, szerző, sorozat és sorozatszám lekérése;
@@ -10,11 +14,19 @@ borítóképeit tölti le a [Moly.hu](https://moly.hu/) oldalról.
 - értékelés és nyelv felismerése;
 - keresés elsősorban ISBN, ennek hiányában cím és szerző alapján;
 - több lehetséges könyvtalálat kezelése (alapértelmezetten legfeljebb 3);
-- több nagy méretű borító letöltése (alapértelmezetten legfeljebb 5).
+- több nagy méretű borító letöltése (alapértelmezetten legfeljebb 5);
+- kattintható Moly.hu-azonosító a könyv adatlapjának megnyitásához.
+
+## Követelmények
+
+- Calibre 5.0 vagy újabb.
+- Internetkapcsolat a metaadatok és borítók lekéréséhez.
+
+Az aktuális kiadást Calibre 9.9 alatt is ellenőriztük.
 
 ## Telepítés
 
-1. Töltsd le a kiadáshoz tartozó `Moly_hu-1.1.0.zip` fájlt.
+1. Töltsd le a kiadáshoz tartozó `Moly_hu-5.1.1.zip` fájlt.
 2. A Calibre-ben nyisd meg a **Beállítások → Bővítmények** ablakot.
 3. Válaszd a **Bővítmény betöltése fájlból** lehetőséget.
 4. Tallózd be a ZIP-fájlt, majd indítsd újra a Calibre-t.
@@ -32,37 +44,42 @@ A bővítmény beállításainál módosítható:
 - a feldolgozandó könyvtalálatok maximális száma;
 - a letöltendő borítóképek maximális száma.
 
-## Az 1.1.0 verzió javításai
+## Az 5.1-es kiadási ág javításai
 
-A Moly.hu időközben módosította a keresését és több adatlap HTML-szerkezetét,
-ezért a korábbi 1.0.9-es bővítmény hibás vagy teljesen idegen könyvet is
-találhatott, illetve az alábbihoz hasonló lxml-hibával leállhatott:
+A Moly.hu időközben módosította a keresését és több adatlap HTML-szerkezetét.
+A korábbi kiadások emiatt hibás vagy teljesen idegen könyvet találhattak,
+illetve az alábbihoz hasonló lxml-hibával leállhattak:
 
 ```text
 lxml.etree.XMLSyntaxError: internal error
 ```
 
-Az 1.1.0 verzió:
+Az 5.1-es kiadási ág:
 
 - a Moly.hu jelenlegi `query` keresési paraméterét használja;
+- az ISBN-t részesíti előnyben akkor is, ha cím és szerző is rendelkezésre áll;
 - csak a tényleges keresési eredmények között keres, így egy átirányított
   kezdőlap véletlenszerű könyveit nem tekinti találatnak;
 - hibatűrő UTF-8 HTML-feldolgozással megszünteti az lxml parserhibát;
 - a jelenlegi oldalhoz igazítja a cím, szerző, sorozat, ISBN, fülszöveg,
   címkék, kiadó, megjelenési év, értékelés és borítók feldolgozását;
-- eltávolítja a Moly.hu által a címekbe szúrt láthatatlan karaktereket;
-- helyesen alakítja át a Moly.hu százalékos értékelését a Calibre
-  ötszintes csillagskálájára;
+- eltávolítja a címekbe szúrt láthatatlan karaktereket és a fülszöveg
+  spoilerfigyelmeztetését, miközben megőrzi a kiemelt szövegrészek tartalmát;
+- csak valódi nagy borítóképeket ad vissza, HTML-oldalakat nem;
+- helyesen alakítja át a százalékos értékelést a Calibre csillagskálájára;
 - év pontosságú adatnál január 1-jét használ, és nem talál ki aktuális
   hónapot vagy napot;
-- helyes ISO nyelvkódokat használ a görög, kínai és japán nyelvhez.
+- helyes ISO nyelvkódokat használ a görög, kínai és japán nyelvhez;
+- kattintható hivatkozást biztosít a könyv Moly.hu-adatlapjához;
+- automatikus parser- és élő integrációs teszteket tartalmaz.
 
 ## Ellenőrzés
 
-Az 1.1.0 verziót Calibre 9.9 alatt ellenőriztük. Az automatikus parser-tesztek
-mellett élő Moly.hu kereséssel is sikeresen lekérte a **Bálint Ágnes:
-Hajónapló** című könyv adatait, sorozatát, ISBN-jét, kiadóját, címkéit,
-értékelését és borítóját.
+Az automatikus tesztek mellett élő Moly.hu kereséssel is ellenőriztük a
+**Bálint Ágnes: Hajónapló** című könyv adatait és borítóját. A korábban hibát
+okozó **Ákody Zsuzsa: Egy csúnya nő** adatlapját, valamint a sorozatnévvel
+előtagolt **Egy Zizi naplója: Popsztár** címet és borítóját is sikeresen
+feldolgozza.
 
 A tesztek futtatása fejlesztői környezetben:
 
@@ -73,28 +90,91 @@ calibre-debug -e .\tests\live_check.py
 
 ## Verziótörténet
 
-### 1.1.0 – 2026. július 19.
+### 5.1.1 – 2026. július 19.
 
+- A Calibre-ben sorozatnévvel előtagolt címek felismerése, amikor a Moly.hu a
+  sorozatot külön linkként, a könyvet pedig rövid címmel jeleníti meg.
+- Regressziós teszt az **Egy Zizi naplója: Popsztár** keresésére és borítójára.
+
+### 5.1.0 – 2026. július 19.
+
+- A korábbi 1.0.9-es és 5.0.9-es fejlesztési ág egyesítése.
 - A jelenlegi Moly.hu keresés és könyvadatlap támogatása.
 - Hibatűrő HTML-feldolgozás az lxml parserhiba ellen.
 - A téves, kezdőlapról származó találatok kizárása.
-- A metaadat- és borítófeldolgozás javítása.
-- Az értékelési skála, a részleges megjelenési dátumok és egyes nyelvkódok
-  helyesbítése.
+- Az ISBN-keresés, metaadatok, értékelések, dátumok és borítók javítása.
+- Kattintható Moly.hu könyvazonosító.
+- A spoilerfigyelmeztetés eltávolítása a fülszövegből.
 - Automatikus és élő integrációs tesztek hozzáadása.
+
+### 5.0.9 – 2025. augusztus 7.
+
+- Igazítás a Moly.hu fülszövegének változásaihoz.
+
+### 5.0.8 – 2025. május 17.
+
+- Igazítás a sorozatinformációk megváltozott szövegéhez.
+
+### 5.0.7 – 2024. október 19.
+
+- Kisebb hibajavítások, seeder közreműködésével.
+
+### 5.0.6 – 2024. július 7.
+
+- Kisebb hibajavítások.
+
+### 5.0.5 – 2024. július 6.
+
+- Igazítás a Moly.hu címkéinek változásaihoz.
+
+### 5.0.4 – 2022. december 3.
+
+- Igazítás a Moly.hu szöveges mezőinek változásaihoz.
+
+### 5.0.3 – 2021. december 28.
+
+- Kisebb hibajavítások.
+
+### 5.0.2 – 2021. november 28.
+
+- ISBN-keresési hiba javítása.
+
+### 5.0.1 – 2021. november 4.
+
+- A címkefeldolgozás javítása.
+
+### 4.1.7 – 2020. szeptember 26.
+
+- Verziószám módosítása a Calibre 5-höz.
+
+### 1.1.7–1.1.5 – 2020. szeptember 25–26.
+
+- Átállás a Calibre Python 3 környezetére és kisebb hibajavítások.
+
+### 1.1.4 – 2020. július 3.
+
+- ISBN-alapú keresés javítása.
+
+### 1.1.3–1.1.2 – 2020. június 17–18.
+
+- Kisebb hibajavítások és a `moly_hu` azonosító kezelésének módosítása.
+
+### 1.1.1–1.1.0 – 2020. június 17–18.
+
+- Cím- és sorozatfeldolgozás javítása.
+- Láthatatlan karakterek és felesleges sortörések eltávolítása.
+- A dőlt szövegrészek és spoilerfigyelmeztetések kezelése.
 
 ### 1.0.9 – 2020. augusztus 22.
 
-- Python 3 támogatás.
-- Az oldal feldolgozásával kapcsolatos hibák javítása.
-- Forráskód-formázási javítások.
+- Python 3 támogatás a másik karbantartási ágban.
+- Az oldal feldolgozásával kapcsolatos hibák és formázás javítása.
 - Frissítette: Dezső.
 
 ### 1.0.8 – 2018. május 30.
 
 - Elsődleges keresés ISBN alapján.
 - Sikertelen keresésnél fokozatos visszalépés cím- és szerzőalapú keresésre.
-- A cím zárójeles részének elhagyása újrapróbálkozáskor.
 - Frissítette: Dezső.
 
 ### 1.0.7 – 2018. május 8.
@@ -119,17 +199,14 @@ calibre-debug -e .\tests\live_check.py
 
 ### 1.0.3 – 2014. január 2.
 
-- Több nagy méretű borító letöltése.
-- A bővítmény beállításainak átdolgozása.
+- Több nagy méretű borító letöltése és a beállítások átdolgozása.
 
 ### 1.0.2 – 2013. július 28.
 
-- Igazítás a Moly.hu akkori elrendezéséhez.
-- Nyelvfelismerés hozzáadása.
+- Igazítás a Moly.hu akkori elrendezéséhez és nyelvfelismerés hozzáadása.
 
 ### 1.0.1 – 2012. október 9.
 
-- Az oldal változásai miatt szükséges javítások.
 - ISBN, kiadó és megjelenési év feldolgozása.
 
 ### 1.0 – 2011. május 8.
@@ -141,5 +218,9 @@ calibre-debug -e .\tests\live_check.py
 Az eredeti bővítményt Daermond készítette és tette közzé. A projektet később
 Kloon vette át; az eredeti MobileRead-bejegyzés
 [itt olvasható](https://www.mobileread.com/forums/showthread.php?t=193302).
-Köszönet kiwidude-nak a kezdeti segítségért, valamint fatsadt, otapi és Dezső
-közreműködéséért és korábbi frissítéseiért.
+
+Köszönet kiwidude-nak a kezdeti segítségért; Hoffer Csabának, Kloonnak,
+fatsadtnak, otapinak és Dezsőnek az eredeti ág fejlesztéséért; Hokutyának a
+Calibre 5-höz igazított ág 2020–2025 közötti karbantartásáért; valamint
+seedernek a 2024-es hibajavításokért. A közreműködők munkáját a GPL v3 licenc
+feltételeinek megfelelően őrizzük meg és tüntetjük fel.
