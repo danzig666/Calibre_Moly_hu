@@ -86,7 +86,16 @@ plugin.download_cover(
     authors=['Rachel Renee Russell'], identifiers={}, timeout=30,
     get_best_cover=True)
 assert not series_covers.empty(), 'Series-prefixed title returned no cover'
+
+# A missing Jeremy Robinson title must not match Omega inside "Biomega", or
+# an exact Omega title by a different author during the title-only retry.
+omega_results = Queue()
+plugin.identify(
+    ConsoleLog(), omega_results, threading.Event(), title='Omega',
+    authors=['Jeremy Robinson'], identifiers={}, timeout=30)
+assert omega_results.empty(), 'Omega incorrectly matched another author/title'
 print('Live identify passed:', found[0])
 print('Live cover download passed')
 print('lxml regression page passed:', regression.title)
 print('Series-prefixed title and cover passed:', series_book.title)
+print('Omega false-positive regression passed')

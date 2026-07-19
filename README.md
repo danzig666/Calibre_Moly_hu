@@ -26,7 +26,7 @@ Az aktuális kiadást Calibre 9.9 alatt is ellenőriztük.
 
 ## Telepítés
 
-1. Töltsd le a kiadáshoz tartozó `Moly_hu-5.1.1.zip` fájlt.
+1. Töltsd le a kiadáshoz tartozó `Moly_hu-5.1.2.zip` fájlt.
 2. A Calibre-ben nyisd meg a **Beállítások → Bővítmények** ablakot.
 3. Válaszd a **Bővítmény betöltése fájlból** lehetőséget.
 4. Tallózd be a ZIP-fájlt, majd indítsd újra a Calibre-t.
@@ -79,7 +79,8 @@ Az automatikus tesztek mellett élő Moly.hu kereséssel is ellenőriztük a
 **Bálint Ágnes: Hajónapló** című könyv adatait és borítóját. A korábban hibát
 okozó **Ákody Zsuzsa: Egy csúnya nő** adatlapját, valamint a sorozatnévvel
 előtagolt **Egy Zizi naplója: Popsztár** címet és borítóját is sikeresen
-feldolgozza.
+feldolgozza. A Moly.hu-n nem szereplő **Jeremy Robinson: Omega** esetében nem
+ad vissza téves `Biomega` vagy más szerzőtől származó `Omega` találatot.
 
 A tesztek futtatása fejlesztői környezetben:
 
@@ -89,6 +90,14 @@ calibre-debug -e .\tests\live_check.py
 ```
 
 ## Verziótörténet
+
+### 5.1.2 – 2026. július 19.
+
+- Teljes szavakból álló címillesztés: az `Omega` nem egyezik a `Biomega`
+  belsejében.
+- A csak címre kereső újrapróbálkozás is megtartja az eredeti szerzőszűrést,
+  ezért más szerző azonos vagy hasonló című könyve nem kerül a találatok közé.
+- Élő negatív regressziós teszt a **Jeremy Robinson: Omega** keresésére.
 
 ### 5.1.1 – 2026. július 19.
 

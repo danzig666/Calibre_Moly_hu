@@ -41,6 +41,7 @@ class SearchHarness(object):
     normalize_for_match = plugin_module.Moly_hu.normalize_for_match
     _search_result_title_variants = (
         plugin_module.Moly_hu._search_result_title_variants)
+    _title_phrase_matches = plugin_module.Moly_hu._title_phrase_matches
 
 
 DETAIL_HTML = b'''<!doctype html>
@@ -84,6 +85,15 @@ SERIES_PREFIX_SEARCH_HTML = b'''<html><body><div id="content">
     (Egy Zizi napl\xc3\xb3ja 3.)
   </a>
 </p></div></div></body></html>'''
+
+
+OMEGA_SEARCH_HTML = b'''<html><body><div id="content">
+<div class="search_area">
+  <p><a class="book_selector" href="/konyvek/tsutomu-nihei-biomega-1">
+    Tsutomu Nihei: Biomega 1.</a></p>
+  <p><a class="book_selector" href="/konyvek/ruediger-dahlke-veit-lindau-omega">
+    Ruediger Dahlke - Veit Lindau: Omega</a></p>
+</div></div></body></html>'''
 
 
 def test_detail_parsers():
@@ -149,9 +159,21 @@ def test_series_prefixed_calibre_title():
     assert matches == []
 
 
+def test_title_tokens_and_author_filter_reject_biomega():
+    harness = SearchHarness()
+    assert harness._title_phrase_matches('Omega', 'Omega minor')
+    assert not harness._title_phrase_matches('Omega', 'Biomega 1.')
+
+    root = parse_html(OMEGA_SEARCH_HTML)
+    matches = []
+    plugin_module.Moly_hu._parse_search_results(
+        harness, Log(), 'Omega', ['Jeremy Robinson'], root, matches, 30, None)
+    assert matches == []
+
+
 def test_book_identifier_url():
     plugin = object.__new__(plugin_module.Moly_hu)
-    assert plugin.version == (5, 1, 1)
+    assert plugin.version == (5, 1, 2)
     assert plugin.minimum_calibre_version == (5, 0, 0)
     assert plugin.get_book_url({'moly_hu': 'balint-agnes-hajonaplo'}) == (
         'moly_hu', 'balint-agnes-hajonaplo',
@@ -164,5 +186,6 @@ if __name__ == '__main__':
     test_search_is_scoped_and_filtered()
     test_current_query_parameter()
     test_series_prefixed_calibre_title()
+    test_title_tokens_and_author_filter_reject_biomega()
     test_book_identifier_url()
     print('All parser tests passed')

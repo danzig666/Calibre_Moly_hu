@@ -35,7 +35,7 @@ class Moly_hu(Source):
     description = _('Downloads metadata and covers from moly.hu')
     author = ('Daermond, Hoffer Csaba, Kloon, fatsadt, otapi, Dezso, '
               'Hokutya & seeder')
-    version = (5, 1, 1)
+    version = (5, 1, 2)
     minimum_calibre_version = (5, 0, 0)
 
     capabilities = frozenset(['identify', 'cover'])
@@ -90,12 +90,14 @@ class Moly_hu(Source):
         return url
 
     def identify(self, log, result_queue, abort, title, authors,
-                 identifiers={}, timeout=30):
+                 identifiers={}, timeout=30, _filter_authors=None):
         '''
         Note this method will retry without identifiers automatically if no
         match is found with identifiers.
         '''
         matches = []
+        filter_authors = (authors if _filter_authors is None
+                          else _filter_authors)
         moly_id = identifiers.get('moly_hu', None)
         isbn = check_isbn(identifiers.get('isbn', None))
         log.info(u'\nTitle:%s\nAuthors:%s\n' % (title, authors))
@@ -130,7 +132,7 @@ class Moly_hu(Source):
                 log.exception(msg)
                 return msg
             self._parse_search_results(
-                log, title, authors, root, matches, timeout, isbn)
+                log, title, filter_authors, root, matches, timeout, isbn)
 
         if abort.is_set():
             return
@@ -141,18 +143,21 @@ class Moly_hu(Source):
                 log.info('No matches found with identifiers, retrying using only'
                          ' title and authors')
                 return self.identify(log, result_queue, abort, title=title,
-                                     authors=authors, timeout=timeout)
+                                     authors=authors, timeout=timeout,
+                                     _filter_authors=filter_authors)
             elif title and authors and title != title.split("(")[0]:
                 log.info(
                     'No matches found with authors and title try removing () part from title, and search by title and author')
                 tit = title.split("(")[0]
                 return self.identify(log, result_queue, abort, title=tit,
-                                     authors=authors, timeout=timeout)
+                                     authors=authors, timeout=timeout,
+                                     _filter_authors=filter_authors)
             elif title and authors:
                 log.info(
                     'No matches found with authors and title, retrying using only title')
                 return self.identify(log, result_queue, abort, title=title,
-                                     authors=None, timeout=timeout)
+                                     authors=None, timeout=timeout,
+                                     _filter_authors=filter_authors)
             return
 
         from calibre_plugins.moly_hu.worker import Worker
@@ -205,9 +210,7 @@ class Moly_hu(Source):
                         for value in title_variants)))
 
                 if orig_title:
-                    normalized_orig_title = self.normalize_for_match(orig_title)
-                    if not any(normalized_orig_title in
-                               self.normalize_for_match(value)
+                    if not any(self._title_phrase_matches(orig_title, value)
                                for value in title_variants):
                         continue
                 if orig_authors:
@@ -254,6 +257,16 @@ class Moly_hu(Source):
             if series:
                 variants.append('%s %s' % (series, title))
         return variants
+
+    def _title_phrase_matches(self, expected, candidate):
+        """Match a normalized title only across complete word tokens."""
+        expected_tokens = self.normalize_for_match(expected).split()
+        candidate_tokens = self.normalize_for_match(candidate).split()
+        if not expected_tokens or len(expected_tokens) > len(candidate_tokens):
+            return False
+        size = len(expected_tokens)
+        return any(candidate_tokens[index:index + size] == expected_tokens
+                   for index in range(len(candidate_tokens) - size + 1))
 
     def normalize_for_match(self, value):
         if value is None:

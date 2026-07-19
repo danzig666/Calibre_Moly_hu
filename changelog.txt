@@ -1,3 +1,8 @@
+[B]Version 5.1.2[/B] - 19 Jul 2026
+Match titles on complete word tokens so Omega does not match Biomega.
+Keep the original author filter when retrying a query with title only.
+Add a live negative regression check for Jeremy Robinson: Omega.
+
 [B]Version 5.1.1[/B] - 19 Jul 2026
 Match Calibre titles prefixed with a series name when Moly.hu presents the
 series separately from the short book title.
