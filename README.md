@@ -1,62 +1,145 @@
-# Calibre_Moly_hu
-This [Calibre](https://calibre-ebook.com/) plugin has been created to download metadata and cover image from Moly.hu.
+# Calibre Moly.hu metaadat-bővítmény
 
-Original post from https://www.mobileread.com/forums/showthread.php?t=193302 by Kloon:
-I must give credits to the original author, Daermond for making and publishing the initial plugin, but sadly he had abandoned it, so here I am taking over and fixing the errors that have popped up since.
+Ez a [Calibre](https://calibre-ebook.com/) bővítmény könyvek metaadatait és
+borítóképeit tölti le a [Moly.hu](https://moly.hu/) oldalról.
 
-Also, a big thumbs up for kiwidude, for sorting things out for me. 
-And now an update by another author - fatsadt
+## Főbb funkciók
 
-## Main features:
-Can retrieve title, author, series, ISBN, comments, tags, publisher, year of publication, rating and a cover images
-Shows multiple results if possible (3 by default)
-Search based on ISBN if present, otherwise based on title and/or author
-Downloads multiple cover images if possible (5 by default)
+- cím, szerző, sorozat és sorozatszám lekérése;
+- ISBN, fülszöveg, címkék, kiadó és megjelenési év letöltése;
+- értékelés és nyelv felismerése;
+- keresés elsősorban ISBN, ennek hiányában cím és szerző alapján;
+- több lehetséges könyvtalálat kezelése (alapértelmezetten legfeljebb 3);
+- több nagy méretű borító letöltése (alapértelmezetten legfeljebb 5).
 
-## Special Notes:
-Requires Calibre 0.8 or later. Tested with 3.2.0.0
+## Telepítés
 
-## Installation Notes:
-Download the attached zip file and install the plugin as described in the Introduction to plugins thread.
-Note that this is not a GUI plugin so it is not intended/cannot be added to context menus/toolbars etc.
+1. Töltsd le a kiadáshoz tartozó `Moly_hu-1.1.0.zip` fájlt.
+2. A Calibre-ben nyisd meg a **Beállítások → Bővítmények** ablakot.
+3. Válaszd a **Bővítmény betöltése fájlból** lehetőséget.
+4. Tallózd be a ZIP-fájlt, majd indítsd újra a Calibre-t.
 
+A ZIP-fájlt nem kell és nem szabad kicsomagolni a telepítés előtt.
 
-## Version History:
+Ez egy metaadatforrás-bővítmény, ezért nem helyezhető el eszköztáron vagy
+helyi menüben. A könyvek **Metaadatok szerkesztése → Metaadatok letöltése**
+funkcióján keresztül használható.
 
-**Version 1.0.8** - 30 May 2018
-Search primarily by isbn. (It's the most specific and accurate data. Try out the Extract ISBN plugin. With that the search is almost flawles)
-If no match found fall back to broader search.
-If no match try to remove () parts from title, after that try to remove authors.
-Update by Dezso
+## Beállítások
 
-**Version 1.0.7** -  8 May 2018
-Find switched family-first names as well 
-Update by otapi
+A bővítmény beállításainál módosítható:
 
-**Version 1.0.6** - 11 April 2018
-The filter of relevant title and author by transliterate the extended Hungarian characters
-Update by otapi
+- a feldolgozandó könyvtalálatok maximális száma;
+- a letöltendő borítóképek maximális száma.
 
-**Version 1.0.5** - 29 March 2018
-Search was too wide, now filters only to relevant title and author
-Update by otapi
+## Az 1.1.0 verzió javításai
 
-**Version 1.0.4** - 25 Jan 2017
-Now working again, and searches for ISBNs
-Update by fatsadt
+A Moly.hu időközben módosította a keresését és több adatlap HTML-szerkezetét,
+ezért a korábbi 1.0.9-es bővítmény hibás vagy teljesen idegen könyvet is
+találhatott, illetve az alábbihoz hasonló lxml-hibával leállhatott:
 
-**Version 1.0.3** - 2 Jan 2014
-Can download multiple bigger cover images now
-Reworked the plugin configuration
+```text
+lxml.etree.XMLSyntaxError: internal error
+```
 
-**Version 1.0.2** - 28 Jul 2013
-Patched plugin to work with the new layout of moly.hu
-Now parses language as well, so calibre will no longer capitalize Hungarian book titles
+Az 1.1.0 verzió:
 
-**Version 1.0.1** - 9 Oct 2012
-Fix for Moly.hu changes to html code
-Parses ISBN, publisher, year of publication as well
-Raised max number of results to 12
+- a Moly.hu jelenlegi `query` keresési paraméterét használja;
+- csak a tényleges keresési eredmények között keres, így egy átirányított
+  kezdőlap véletlenszerű könyveit nem tekinti találatnak;
+- hibatűrő UTF-8 HTML-feldolgozással megszünteti az lxml parserhibát;
+- a jelenlegi oldalhoz igazítja a cím, szerző, sorozat, ISBN, fülszöveg,
+  címkék, kiadó, megjelenési év, értékelés és borítók feldolgozását;
+- eltávolítja a Moly.hu által a címekbe szúrt láthatatlan karaktereket;
+- helyesen alakítja át a Moly.hu százalékos értékelését a Calibre
+  ötszintes csillagskálájára;
+- év pontosságú adatnál január 1-jét használ, és nem talál ki aktuális
+  hónapot vagy napot;
+- helyes ISO nyelvkódokat használ a görög, kínai és japán nyelvhez.
 
-**Version 1.0** - 08 May 2011
-Initial release of plugin
+## Ellenőrzés
+
+Az 1.1.0 verziót Calibre 9.9 alatt ellenőriztük. Az automatikus parser-tesztek
+mellett élő Moly.hu kereséssel is sikeresen lekérte a **Bálint Ágnes:
+Hajónapló** című könyv adatait, sorozatát, ISBN-jét, kiadóját, címkéit,
+értékelését és borítóját.
+
+A tesztek futtatása fejlesztői környezetben:
+
+```powershell
+calibre-debug -e .\tests\test_parsing.py
+calibre-debug -e .\tests\live_check.py
+```
+
+## Verziótörténet
+
+### 1.1.0 – 2026. július 19.
+
+- A jelenlegi Moly.hu keresés és könyvadatlap támogatása.
+- Hibatűrő HTML-feldolgozás az lxml parserhiba ellen.
+- A téves, kezdőlapról származó találatok kizárása.
+- A metaadat- és borítófeldolgozás javítása.
+- Az értékelési skála, a részleges megjelenési dátumok és egyes nyelvkódok
+  helyesbítése.
+- Automatikus és élő integrációs tesztek hozzáadása.
+
+### 1.0.9 – 2020. augusztus 22.
+
+- Python 3 támogatás.
+- Az oldal feldolgozásával kapcsolatos hibák javítása.
+- Forráskód-formázási javítások.
+- Frissítette: Dezső.
+
+### 1.0.8 – 2018. május 30.
+
+- Elsődleges keresés ISBN alapján.
+- Sikertelen keresésnél fokozatos visszalépés cím- és szerzőalapú keresésre.
+- A cím zárójeles részének elhagyása újrapróbálkozáskor.
+- Frissítette: Dezső.
+
+### 1.0.7 – 2018. május 8.
+
+- A felcserélt családnév–utónév sorrend felismerése.
+- Frissítette: otapi.
+
+### 1.0.6 – 2018. április 11.
+
+- Ékezetfüggetlen cím- és szerzőszűrés.
+- Frissítette: otapi.
+
+### 1.0.5 – 2018. március 29.
+
+- Pontosabb cím- és szerzőszűrés a túl tág keresések ellen.
+- Frissítette: otapi.
+
+### 1.0.4 – 2017. január 25.
+
+- A keresés helyreállítása és ISBN-alapú keresés hozzáadása.
+- Frissítette: fatsadt.
+
+### 1.0.3 – 2014. január 2.
+
+- Több nagy méretű borító letöltése.
+- A bővítmény beállításainak átdolgozása.
+
+### 1.0.2 – 2013. július 28.
+
+- Igazítás a Moly.hu akkori elrendezéséhez.
+- Nyelvfelismerés hozzáadása.
+
+### 1.0.1 – 2012. október 9.
+
+- Az oldal változásai miatt szükséges javítások.
+- ISBN, kiadó és megjelenési év feldolgozása.
+
+### 1.0 – 2011. május 8.
+
+- Első kiadás.
+
+## Köszönetnyilvánítás
+
+Az eredeti bővítményt Daermond készítette és tette közzé. A projektet később
+Kloon vette át; az eredeti MobileRead-bejegyzés
+[itt olvasható](https://www.mobileread.com/forums/showthread.php?t=193302).
+Köszönet kiwidude-nak a kezdeti segítségért, valamint fatsadt, otapi és Dezső
+közreműködéséért és korábbi frissítéseiért.
